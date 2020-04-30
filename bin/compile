@@ -6,7 +6,6 @@ TOR_VER=0.3.5.9
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://www.torproject.org/dist/
 
-
 ## --
 
 set -euxo
@@ -56,6 +55,7 @@ if [ $TOR_IS_CACHED -eq 0 ] ; then
         exit 1
     fi
 fi
+
 ################################################################################
 # VERIFY INTEGRITY
 ################################################################################
@@ -69,6 +69,7 @@ if [ $TOR_IS_CACHED -eq 0 ] ; then
         exit 1
     fi
 fi
+
 ################################################################################
 # COMPILE
 ################################################################################
@@ -88,6 +89,7 @@ if [ $TOR_IS_CACHED -eq 0 ] ; then
         exit  1
     fi
 fi
+
 ################################################################################
 # INSTALL
 ################################################################################
@@ -99,19 +101,26 @@ echo "${TOR_SRC_NAME}" > $CACHE_DIR/tor_version.txt
 
 cat > ${BUILD_DIR}/tor/bin/${RUN_COMMAND} <<EOF
 #!/usr/bin/env bash
+
+echo "Ensuring hidden_service directory"
 mkdir -p "${HOME}/hidden_service"
 
-echo "Setting up hidden service"
-cat > ${HOME}/hidden_service/private_key <<EPK
+echo "Ensuring hidden_service/private_key"
+if [ ! -f "${HOME}/hidden_service/private_key" ]; then
+cat > ${HOME}/hidden_service/private_key << EPK
 \${HIDDEN_PRIVATE_KEY}
 EPK
+fi
 
-echo \${HIDDEN_DOT_ONION} > ${HOME}/hidden_service/hostname
+echo "Ensuring hidden_service/hostname"
+if [ ! -f "${HOME}/hidden_service/hostname" ]; then
+    echo \${HIDDEN_DOT_ONION} > ${HOME}/hidden_service/hostname
+fi
 
-echo "Compiling torrc"
+echo "Compiling torrc from config/torrc.erb"
 erb config/torrc.erb > ${HOME}/tor/etc/tor/torrc
 
-# Use -f to be safe here.
+echo "Starting Tor"
 $HOME/tor/bin/tor -f ${HOME}/tor/etc/tor/torrc
 EOF
 
