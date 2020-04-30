@@ -38,13 +38,6 @@ else
     TOR_IS_CACHED=0
 fi
 
-###########################
-# ENSURE NGINX IS INSTALLED
-###########################
-echo "[+] Installing nginx" | indent
-apt-get update
-apt-get install -y --no-install-recommends --no-upgrade nginx
-
 #################
 # CONFIGURE NGINX
 #################
