@@ -5,11 +5,13 @@ RUN_COMMAND=run_tor
 TOR_VER=0.3.5.9
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://www.torproject.org/dist/
+BUILDPACK_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd)
+LOCALHOST_ADDR=127.0.0.1:8080
 
 
 ## --
 
-set -x
+set -euxo
 
 indent() {
     sed -u 's/^/      /'
@@ -23,33 +25,64 @@ TOR_SRC_URL=${TOR_DIST_URL}${TOR_SRC_NAME}
 TOR_SRC_SIG_URL=${TOR_DIST_URL}${TOR_SIG_NAME}
 
 ################################################################################
-# Try use cache
+# TRY USE CACHE
 ################################################################################
+echo "[+] Checking if Tor is cached" | indent
 mkdir -p $CACHE_DIR
 grep -wq "${TOR_SRC_NAME}" $CACHE_DIR/tor_version.txt
 if [ $? -eq 0 ] ; then # Reusing cache
-   TOR_IS_CACHED=1
+    echo " -  Tor is cached" | indent
+    TOR_IS_CACHED=1
 else
-   TOR_IS_CACHED=0
+    echo " -  Tor is not cached" | indent
+    TOR_IS_CACHED=0
 fi
+
+###########################
+# ENSURE NGINX IS INSTALLED
+###########################
+echo "[+] Installing nginx" | indent
+apt-get update
+apt-get install -y --no-install-recommends --no-upgrade nginx
+
+#################
+# CONFIGURE NGINX
+#################
+# https://stackoverflow.com/a/48406504/3076390
+sed -e '/http {/a\'$'\n''include /etc/nginx/conf.d/*.conf;' /Users/jtschoonhoven/src/heroku-buildpack-tor/lib/nginx.conf
+if [ -f /etc/nginx/nginx.conf ]; then
+    sed -e '/http {/a\'$'\n''CLIENTSCRIPT2="hello"' /Users/jtschoonhoven/src/heroku-buildpack-tor/lib/nginx.conf
+else
+    cp ${BUILDPACK_DIR}/lib/nginx.conf /etc/nginx/nginx.conf
+fi
+
+cat > /etc/nginx/conf.d/tor.conf << EOL
+server {
+  listen ${LOCALHOST_ADDR};
+  # server_name ${HIDDEN_DOT_ONION};
+  server_name _ default;
+  root /etc/nginx/html;
+  index /etc/nginx/html/index.html;
+}
+EOL
 
 ################################################################################
 # GET SOURCES
 ################################################################################
 if [ $TOR_IS_CACHED -eq 0 ] ; then
-    echo "Downloading ${TOR_SRC_URL}"
+    echo "[+] Downloading ${TOR_SRC_URL}" | indent
     wget -q $TOR_SRC_URL
 
     if [ $? - ne 0]; then
-        echo "FAILED to obtain ${TOR_SRC_URL}" | indent
+        echo " - FAILED to obtain ${TOR_SRC_URL}" | indent
         exit 1
     fi
 
-    echo "Downloading ${TOR_SRC_SIG_URL}"
+    echo "[+] Downloading ${TOR_SRC_SIG_URL}" | indent
     wget -q $TOR_SRC_SIG_URL
 
     if [ $? -ne 0 ]; then
-        echo "FAILED to obtain signature ${TOR_SRC_SIG_URL}" | indent
+        echo " - FAILED to obtain signature ${TOR_SRC_SIG_URL}" | indent
         exit 1
     fi
 fi
@@ -57,11 +90,12 @@ fi
 # VERIFY INTEGRITY
 ################################################################################
 if [ $TOR_IS_CACHED -eq 0 ] ; then
+    echo "[+] Verifying signature of Tor package" | indent
     gpg --keyserver pool.sks-keyservers.net --recv-keys 0x4E2C6E8793298290
     gpg --keyserver pool.sks-keyservers.net --recv-keys 0x6AFEE6D49E92B601
     gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME} | grep -c "Good signature"
     if [ $? -lt 1 ]; then
-        echo "FAILED to verify the signature" | indent
+        echo " - FAILED to verify the signature" | indent
         exit 1
     fi
 fi
@@ -69,25 +103,25 @@ fi
 # COMPILE
 ################################################################################
 if [ $TOR_IS_CACHED -eq 0 ] ; then
+    echo "[+] Compiling Tor package" | indent
     tar -zxf ${TOR_SRC_NAME}
     cd tor-${TOR_VER}
     ./configure --prefix=$CACHE_DIR/tor
     if [ $? -ne 0 ]; then
-        echo "FAILED to configure for compliation" | indent
+        echo " - FAILED to configure for compliation" | indent
         exit 1
     fi
 
     make install
     if [ $? -ne 0 ]; then
-        echo "FAILED to run make install" | indent
+        echo " - FAILED to run make install" | indent
         exit  1
     fi
 fi
 ################################################################################
 # INSTALL
 ################################################################################
-
-# Cached instalation to real build dir
+# Cached installation to real build dir
 cp -r $CACHE_DIR/tor ${BUILD_DIR}
 
 # Saves the version just compiled
@@ -105,7 +139,7 @@ EPK
 echo \${HIDDEN_DOT_ONION} > ${HOME}/hidden_service/hostname
 
 echo "HiddenServiceDir ${HOME}/hidden_service/" > $HOME/tor/etc/tor/torrc
-echo "HiddenServicePort 80 127.0.0.1:\${PORT}" >> $HOME/tor/etc/tor/torrc
+echo "HiddenServicePort \${PORT} \${LOCALHOST_ADDR}" >> $HOME/tor/etc/tor/torrc
 echo "HiddenServiceVersion 2" >> $HOME/tor/etc/tor/torrc
 
 # Use -f to be safe here.
