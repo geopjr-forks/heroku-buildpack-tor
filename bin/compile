@@ -38,30 +38,6 @@ else
     TOR_IS_CACHED=0
 fi
 
-#################
-# CONFIGURE NGINX
-#################
-echo "[+] Configuring nginx" | indent
-# https://stackoverflow.com/a/48406504/3076390
-if [ -f /etc/nginx/nginx.conf ]; then
-    sed -e '/http {/a\'$'\n''CLIENTSCRIPT2="hello"' /etc/nginx/nginx.conf
-else
-    echo " - WARNING: nginx.conf does not exist, creating..."
-    mkdir -p /etc/nginx/
-    echo which nginx
-    cp ${BUILDPACK_DIR}/lib/nginx.conf /etc/nginx/nginx.conf
-fi
-
-cat > /etc/nginx/conf.d/tor.conf << EOL
-server {
-  listen ${LOCALHOST_ADDR};
-  # server_name ${HIDDEN_DOT_ONION};
-  server_name _ default;
-  root /etc/nginx/html;
-  index /etc/nginx/html/index.html;
-}
-EOL
-
 ################################################################################
 # GET SOURCES
 ################################################################################
