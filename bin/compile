@@ -114,7 +114,7 @@ echo "HiddenServicePort \${PORT} \${LOCALHOST_ADDR}" >> $HOME/tor/etc/tor/torrc
 echo "HiddenServiceVersion 2" >> $HOME/tor/etc/tor/torrc
 
 # Use -f to be safe here.
-$HOME/tor/bin/tor -f $HOME/tor/etc/tor/torrc &
+$HOME/tor/bin/tor -f $HOME/tor/etc/tor/torrc
 EOF
 
 chmod a+x ${BUILD_DIR}/tor/bin/${RUN_COMMAND}
