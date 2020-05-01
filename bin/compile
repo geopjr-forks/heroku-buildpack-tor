@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
+set -exo
 
-## VARIABLES
+# Constants
 RUN_COMMAND=run_tor
 TOR_VER=0.3.5.9
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://www.torproject.org/dist/
 
-## --
-
-set -exo
-
-indent() {
-    sed -u 's/^/      /'
-}
-
+# Variables
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
@@ -24,34 +18,36 @@ TOR_SRC_SIG_URL=${TOR_DIST_URL}${TOR_SIG_NAME}
 ################################################################################
 # TRY USE CACHE
 ################################################################################
-echo "[+] Checking if Tor is cached" | indent
-mkdir -p $CACHE_DIR
-grep -wq "${TOR_SRC_NAME}" $CACHE_DIR/tor_version.txt
+
+echo "[TOR] Checking if Tor is cached"
+mkdir -p "${CACHE_DIR}"
+grep -wq "${TOR_SRC_NAME}" "${CACHE_DIR}/tor_version.txt"
 if [ $? -eq 0 ] ; then # Reusing cache
-    echo " -  Tor is cached" | indent
+    echo "[TOR] Tor is cached"
     TOR_IS_CACHED=1
 else
-    echo " -  Tor is not cached" | indent
+    echo "[TOR] Tor is not cached"
     TOR_IS_CACHED=0
 fi
 
 ################################################################################
 # GET SOURCES
 ################################################################################
+
 if [ $TOR_IS_CACHED -eq 0 ] ; then
-    echo "[+] Downloading ${TOR_SRC_URL}" | indent
+    echo "[TOR] Downloading ${TOR_SRC_URL}"
     wget -q $TOR_SRC_URL
 
     if [ $? - ne 0]; then
-        echo " - FAILED to obtain ${TOR_SRC_URL}" | indent
+        echo "[TOR] FAILED to obtain ${TOR_SRC_URL}"
         exit 1
     fi
 
-    echo "[+] Downloading ${TOR_SRC_SIG_URL}" | indent
+    echo "[TOR] Downloading ${TOR_SRC_SIG_URL}"
     wget -q $TOR_SRC_SIG_URL
 
     if [ $? -ne 0 ]; then
-        echo " - FAILED to obtain signature ${TOR_SRC_SIG_URL}" | indent
+        echo "[TOR] FAILED to obtain signature ${TOR_SRC_SIG_URL}"
         exit 1
     fi
 fi
@@ -59,13 +55,14 @@ fi
 ################################################################################
 # VERIFY INTEGRITY
 ################################################################################
+
 if [ $TOR_IS_CACHED -eq 0 ] ; then
-    echo "[+] Verifying signature of Tor package" | indent
+    echo "[TOR] Verifying signature of Tor package"
     gpg --keyserver pool.sks-keyservers.net --recv-keys 0x4E2C6E8793298290
     gpg --keyserver pool.sks-keyservers.net --recv-keys 0x6AFEE6D49E92B601
     gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME} | grep -c "Good signature"
     if [ $? -lt 1 ]; then
-        echo " - FAILED to verify the signature" | indent
+        echo "[TOR] FAILED to verify the signature"
         exit 1
     fi
 fi
@@ -73,19 +70,20 @@ fi
 ################################################################################
 # COMPILE
 ################################################################################
+
 if [ $TOR_IS_CACHED -eq 0 ] ; then
-    echo "[+] Compiling Tor package" | indent
+    echo "[TOR] Compiling Tor package"
     tar -zxf ${TOR_SRC_NAME}
     cd tor-${TOR_VER}
     ./configure --prefix=$CACHE_DIR/tor
     if [ $? -ne 0 ]; then
-        echo " - FAILED to configure for compliation" | indent
+        echo "[TOR] FAILED to configure for compliation"
         exit 1
     fi
 
     make install
     if [ $? -ne 0 ]; then
-        echo " - FAILED to run make install" | indent
+        echo "[TOR] FAILED to run make install"
         exit  1
     fi
 fi
@@ -93,67 +91,17 @@ fi
 ################################################################################
 # INSTALL
 ################################################################################
+
 # Cached installation to real build dir
 cp -r $CACHE_DIR/tor ${BUILD_DIR}
 
 # Saves the version just compiled
-echo "${TOR_SRC_NAME}" > $CACHE_DIR/tor_version.txt
+echo "${TOR_SRC_NAME}" > "${CACHE_DIR}/tor_version.txt"
 
 # Copy the default torrc.erb template file to the tor directory
-mkdir -p "${HOME}/tmp/heroku-buildpack-tor/"
-cp ./lib/torrc.erb "${HOME}/tmp/heroku-buildpack-tor/torrc.erb"
+cp ./lib/torrc.erb "${BUILD_DIR}/tor/torrc.erb"
 
-cat > ${BUILD_DIR}/tor/bin/${RUN_COMMAND} << EOF
-#!/usr/bin/env bash
+# Copy the run_tor executable to the tor directory
+cp ./run_tor "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
 
-echo "Ensuring hidden_service directory"
-mkdir -p "${HOME}/hidden_service"
-
-echo "Ensuring hidden_service/private_key"
-TOR_PRIVATE_KEY_SET=1
-if [ ! -f "${HOME}/hidden_service/private_key" ]; then
-    if [ -z \${HIDDEN_PRIVATE_KEY} ]; then
-        cat > ${HOME}/hidden_service/private_key << EPK
-\${HIDDEN_PRIVATE_KEY}
-EPK
-    else
-        echo "Key not found in hidden_service/private_key or HIDDEN_PRIVATE_KEY env"
-        TOR_PRIVATE_KEY_SET=0
-    fi
-fi
-
-echo "Ensuring hidden_service/hostname"
-TOR_HOSTNAME_SET=1
-if [ ! -f "${HOME}/hidden_service/hostname" ]; then
-    if [ -z \${HIDDEN_DOT_ONION} ]; then
-        echo \${HIDDEN_DOT_ONION} > ${HOME}/hidden_service/hostname
-    else
-        echo "Hostname not found in hidden_service/hostname or HIDDEN_DOT_ONION env"
-        TOR_HOSTNAME_SET=0
-    fi
-fi
-
-echo "Generating torrc"
-if [ -f "${HOME}/config/torrc.erb" ]; then
-    echo "Compiling user-defined torrc from config/torrc.erb"
-    erb "${HOME}/config/torrc.erb" > ${HOME}/tor/etc/tor/torrc
-else
-    erb "${HOME}/tmp/heroku-buildpack-tor/torrc.erb" > ${HOME}/tor/etc/tor/torrc
-fi
-
-if [ $TOR_HOSTNAME_SET -eq 0 ] ; then
-    if [ $HIDDEN_PRIVATE_KEY -eq 0 ] ; then
-        echo "No hostname or private_key have been defined: tor will generate them automatically."
-    fi
-fi
-
-echo "You can check your hostname by running the following local command:"
-echo "heroku ps:exec 'cat ${HOME}/hidden_service/hostname'"
-
-echo "Starting Tor"
-$HOME/tor/bin/tor -f ${HOME}/tor/etc/tor/torrc
-EOF
-
-chmod a+x ${BUILD_DIR}/tor/bin/${RUN_COMMAND}
-
-echo "Installed Tor successfully" | indent
+echo "[TOR] Installed successfully"
