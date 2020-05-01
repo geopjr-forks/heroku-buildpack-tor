@@ -23,7 +23,7 @@ echo "[TOR]  Checking if Tor is cached"
 mkdir -p "${CACHE_DIR}"
 if [ ! -f "${CACHE_DIR}/tor_version.txt" ]; then
     echo "[TOR]  First run: Tor is not cached"
-    TOR_IS_CACHED=1
+    TOR_IS_CACHED=0
 else
     grep -wq "${TOR_SRC_NAME}" "${CACHE_DIR}/tor_version.txt"
     if [ $? -eq 0 ] ; then
