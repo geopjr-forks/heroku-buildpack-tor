@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -exo pipefail
 
 # Constants
 RUN_COMMAND=run_tor
@@ -21,13 +21,18 @@ TOR_SRC_SIG_URL=${TOR_DIST_URL}${TOR_SIG_NAME}
 
 echo "[TOR]  Checking if Tor is cached"
 mkdir -p "${CACHE_DIR}"
-grep -wqs "${TOR_SRC_NAME}" "${CACHE_DIR}/tor_version.txt"
-if [ $? -eq 0 ] ; then
-    echo "[TOR]  Tor is cached"
+if [ ! -f "${CACHE_DIR}/tor_version.txt" ]; then
+    echo "[TOR]  First run: Tor is not cached"
     TOR_IS_CACHED=1
 else
-    echo "[TOR]  Tor is not cached"
-    TOR_IS_CACHED=0
+    grep -wq "${TOR_SRC_NAME}" "${CACHE_DIR}/tor_version.txt"
+    if [ $? -eq 0 ] ; then
+        echo "[TOR]  Tor is cached"
+        TOR_IS_CACHED=1
+    else
+        echo "[TOR]  Tor is not cached"
+        TOR_IS_CACHED=0
+    fi
 fi
 
 ################################################################################
