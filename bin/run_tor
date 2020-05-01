@@ -45,7 +45,7 @@ if [ ! -f "${HOME}/hidden_service/private_key" ] || [ ! -f "${HOME}/hidden_servi
     TOR_AUTOGEN_TRIES_REMAINING=5
     while [ ! -f "${HOME}/hidden_service/private_key" ] && [ ! -f "${HOME}/hidden_service/hostname" ]; do
         TOR_AUTOGEN_TRIES_REMAINING=$((TOR_AUTOGEN_TRIES_REMAINING-1))
-        if [ TOR_AUTOGEN_TRIES_REMAINING -eq 0 ]; then
+        if [ $TOR_AUTOGEN_TRIES_REMAINING -eq 0 ]; then
             echo "[TOR] FAILURE: Unable to automatically generate a hostname and private_key"
             exit 1
         fi
