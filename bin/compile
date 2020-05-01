@@ -19,7 +19,7 @@ TOR_SRC_SIG_URL=${TOR_DIST_URL}${TOR_SIG_NAME}
 # TRY USE CACHE
 ################################################################################
 
-echo "[TOR]  Checking if Tor is cached"
+echo "[TOR]  Checking if Tor is in cache"
 mkdir -p "${CACHE_DIR}"
 if [ ! -f "${CACHE_DIR}/tor_version.txt" ]; then
     echo "[TOR]  First run: Tor is not cached"
