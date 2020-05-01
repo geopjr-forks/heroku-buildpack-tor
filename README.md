@@ -2,8 +2,6 @@
 
 This buildpack sets up a Tor V2 hidden service for your app on Heroku.
 
-**Tested and working as of latest commit.**
-
 ## Setup
 
 Create a Heroku app as normal, with any buildpacks you typically use.
@@ -11,14 +9,14 @@ Create a Heroku app as normal, with any buildpacks you typically use.
 Then:
 
 ```sh
+# Add heroku-buildpack-tor as a custom buildpack
 $ heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git
 
-# Pin a specific release if running in production:
-$ heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git#v0.0.15
+# Optionally pin a specific version (strongly recommended for production)
+$ heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git#v0.1.4
 ```
 
-With the buildpack installed, you'll need to modify your Procfile such that
-the hidden service will be setup when the app runs.
+With the buildpack installed, you'll need to modify your Procfile such that the hidden service will be setup when the app runs.
 
 Procfile:
 
@@ -26,45 +24,36 @@ Procfile:
 web: ./tor/bin/run_tor & <cmd you'd normally run>
 ```
 
-While `web` works just fine, so too will any other dyno type. Use `web`
-if you want the app to be accessible generally, as well as over Tor. Use
-`<any other type>` (e.g. `foo`), to avoid Heroku's router routing to your app like so:
+While `web` works "just fine" (*see warning below*) , so too will any other dyno name. Use `web` if you want the app to be accessible generally, as well as over Tor. Use `<any other type>` (e.g. `tor`), to avoid Heroku's router routing to your app like so:
 
 ```
-foo: $PORT=8080 ./tor/bin/run_tor & <cmd you'd normally run>
+tor: $PORT=8080 ./tor/bin/run_tor & <cmd you'd normally run>
 ```
 
-Your app will only be accessible over Tor, through your configured
-`.onion` address.
+Your app will only be accessible over Tor, through your configured `.onion` address.
+
+##### WARNING
+If your app is hosted on the `<appname>.herokuapp.com` domain, you should NOT use a `web` dyno unless you have a plan to circumvent Heroku's automatic HTTPS redirects. More info below.
 
 ## Configuring your torrc
 
-Tor hidden services are configured by a config file called [`torrc`](https://github.com/torproject/tor/blob/master/src/config/torrc.sample.in). They look like this:
+Tor hidden services are configured by a config file called a [`torrc`](https://github.com/torproject/tor/blob/master/src/config/torrc.sample.in). A minimal one looks like this:
 
 ```
-# torrc
-
-# HiddenServiceDir: where tor looks for "private_key" and "hostname" files
 HiddenServiceDir /app/hidden_service
-
-# HiddenServicePort: a VIRTUAL port mapped to the local port for your webserver
 HiddenServicePort 80 127.0.0.1:8080
-
-# HiddenServiceVersion: This buildpack currently only supports V2 hidden services
-HiddenServiceVersion 2
 ```
 
-This buildpack assumes that your webserver is already configured to listen on Heroku's assigned `$PORT` and generates a `torrc` for you. If you need more control over your `torrc`, you can override with your own custom file by defining `config/torrc.erb` in your app root. You can copy and paste the [default torrc.erb](https://github.com/jtschoonhoven/heroku-buildpack-tor/blob/master/lib/torrc.erb) to get started.
+This buildpack assumes that your webserver is already configured to listen on Heroku's assigned `$PORT` and it automatically generates a `torrc` for you. If you need more control over your `torrc`, you can override with your own custom file by defining `config/torrc.erb` in your app root. You can copy and paste the [default torrc.erb](https://github.com/jtschoonhoven/heroku-buildpack-tor/blob/master/lib/torrc.erb) to get started.
 
-## Variables
+## Environment Variables
 
-Of course, Tor hidden services require that you provide a private_key and it's
-SHA, for the .onion name. You'll need to provide these as env vars:
+Unlike other forks, this buildpack works without setting any environment variables. If you don't specify your own, a private key and .onion hostname will be automatically generated for you on each build. However you might find it inconvenient to be assigned a brand new .onion address every time you deploy, so you may optionally set these permanently using the following two environment variables:
 
-* `HIDDEN_PRIVATE_KEY`: The contents of a private_key file
-* `HIDDEN_DOT_ONION`: The onion name for the private_key.
+* `HIDDEN_PRIVATE_KEY`
+* `HIDDEN_DOT_ONION`
 
-I recommend [Eschalot](https://github.com/ReclaimYourPrivacy/eschalot) for generating V2 .onion addresses. For example the `HIDDEN_DOT_ONION` address `testxlvhldg55pwd.onion` is derived from the following `HIDDEN_PRIVATE_KEY`:
+For example the `HIDDEN_DOT_ONION` address `testxlvhldg55pwd.onion` is derived from the following `HIDDEN_PRIVATE_KEY`:
 
 ```
 -----BEGIN RSA PRIVATE KEY-----
@@ -84,12 +73,14 @@ MeIm0wXs4CYNj9Gx+2hPHfx/v+eoBQNjkHKoebLLqa69
 -----END RSA PRIVATE KEY-----
 ```
 
-**OBVIOUSLY YOU SHOULD NOT ACTUALLY USE THE EXAMPLE KEYPAIR FROM THE README.** I hope that I don't have to say that. Yes, not even for testing.
+**OBVIOUSLY YOU SHOULD NOT ACTUALLY USE THE EXAMPLE KEY FROM THE README.** I hope that I don't have to say that. No, not even for testing.
 
-## Handling HTTPS on Heroku
+If you want more control over you .onion address, I recommend checking out [Eschalot](https://github.com/ReclaimYourPrivacy/eschalot).
 
-**IMPORTANT: If your app is using free Heroku hosting at `your-app-name.herokuapp.com` you cannot use the `web:` dyno in your Procfile without doing extra work.**
+## Handling HTTPS Redirects on Heroku
+
+**TL:DR: If your app is using free Heroku hosting at `<app-name>.herokuapp.com` you cannot use the `web` dyno in your Procfile without doing extra work.**
 
 Apps hosted under `herokuapp.com` are forced to use HTTPS. This is normally a good thing, but it breaks our default `torrc`. You may remember that HTTP requests use port 80 and HTTPS uses port 443. The default `torrc` intentionally does not define a virtual port for port 443, which means any request made using HTTPS will fail. While it _is_ possible to configure your app to handle HTTPS requests itself, you will either have to self-sign your own SSL cert (which no browser will trust) or find a certificate authority that accepts .onion domains and pay them a few hundred dollars for the privilege.
 
-It will be much easier to simply keep your Tor hidden service running on a separate worker dyno (i.e. use anything other than `web:` in your Procfile) but if you absolutely _must_ use a web dyno, you can work around the problem by using a custom `torrc.erb` that listens on nonstandard virtual port (I like 8080). Then your site will be accessible over regular HTTP at `y0uroni0nd0ma1n.onion:8080`.
+It will be much easier to simply keep your Tor hidden service running on a separate worker dyno (i.e. use anything other than `web` in your Procfile) but if you absolutely _must_ use a web dyno, you can work around the problem by using a custom `torrc.erb` that listens on nonstandard virtual port (I like 8080). Then your site will be accessible over regular HTTP at `y0uroni0nd0ma1n.onion:8080`.
