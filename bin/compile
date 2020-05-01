@@ -100,8 +100,8 @@ cp -r $CACHE_DIR/tor ${BUILD_DIR}
 echo "${TOR_SRC_NAME}" > $CACHE_DIR/tor_version.txt
 
 # Copy the default torrc.erb template file to the tor directory
-mkdir -p "/tmp/heroku-buildpack-tor/"
-cp ./lib/torrc.erb "/tmp/heroku-buildpack-tor/torrc.erb"
+mkdir -p "${HOME}/tmp/heroku-buildpack-tor/"
+cp ./lib/torrc.erb "${HOME}/tmp/heroku-buildpack-tor/torrc.erb"
 
 cat > ${BUILD_DIR}/tor/bin/${RUN_COMMAND} << EOF
 #!/usr/bin/env bash
@@ -138,7 +138,7 @@ if [ -f "${HOME}/config/torrc.erb" ]; then
     echo "Compiling user-defined torrc from config/torrc.erb"
     erb "${HOME}/config/torrc.erb" > ${HOME}/tor/etc/tor/torrc
 else
-    erb "/tmp/heroku-buildpack-tor/torrc.erb" > ${HOME}/tor/etc/tor/torrc
+    erb "${HOME}/tmp/heroku-buildpack-tor/torrc.erb" > ${HOME}/tor/etc/tor/torrc
 fi
 
 if [ $TOR_HOSTNAME_SET -eq 0 ] ; then
