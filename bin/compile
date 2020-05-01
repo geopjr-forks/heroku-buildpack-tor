@@ -8,7 +8,7 @@ TOR_DIST_URL=https://www.torproject.org/dist/
 
 ## --
 
-set -euxo
+set -exo
 
 indent() {
     sed -u 's/^/      /'
@@ -99,6 +99,9 @@ cp -r $CACHE_DIR/tor ${BUILD_DIR}
 # Saves the version just compiled
 echo "${TOR_SRC_NAME}" > $CACHE_DIR/tor_version.txt
 
+# Copy the default torrc.erb template file to the tor directory
+cp ./lib/torrc.erb "${HOME}/tor/etc/tor/"
+
 cat > ${BUILD_DIR}/tor/bin/${RUN_COMMAND} <<EOF
 #!/usr/bin/env bash
 
@@ -106,19 +109,45 @@ echo "Ensuring hidden_service directory"
 mkdir -p "${HOME}/hidden_service"
 
 echo "Ensuring hidden_service/private_key"
+TOR_PRIVATE_KEY_SET=1
 if [ ! -f "${HOME}/hidden_service/private_key" ]; then
-cat > ${HOME}/hidden_service/private_key << EPK
+    if [ -z \${HIDDEN_PRIVATE_KEY} ]; then
+        cat > ${HOME}/hidden_service/private_key << EPK
 \${HIDDEN_PRIVATE_KEY}
-EPK
+        EPK
+    else
+        echo "Key not found in hidden_service/private_key or HIDDEN_PRIVATE_KEY env"
+        TOR_PRIVATE_KEY_SET=0
+    fi
 fi
 
 echo "Ensuring hidden_service/hostname"
+TOR_HOSTNAME_SET=1
 if [ ! -f "${HOME}/hidden_service/hostname" ]; then
-    echo \${HIDDEN_DOT_ONION} > ${HOME}/hidden_service/hostname
+    if [ -z \${HIDDEN_DOT_ONION} ]; then
+        echo \${HIDDEN_DOT_ONION} > ${HOME}/hidden_service/hostname
+    else
+        echo "Hostname not found in hidden_service/hostname or HIDDEN_DOT_ONION env"
+        TOR_HOSTNAME_SET=0
+    fi
 fi
 
-echo "Compiling torrc from config/torrc.erb"
-erb config/torrc.erb > ${HOME}/tor/etc/tor/torrc
+echo "Generating torrc"
+if [ -f "${HOME}/config/torrc.erb" ]; then
+    echo "Compiling user-defined torrc from config/torrc.erb"
+    erb "${HOME}/config/torrc.erb" > ${HOME}/tor/etc/tor/torrc
+else
+    erb "${HOME}/tor/etc/tor/torrc.erb" > ${HOME}/tor/etc/tor/torrc
+fi
+
+if [ $TOR_HOSTNAME_SET -eq 0 ] ; then
+    if [ $HIDDEN_PRIVATE_KEY -eq 0 ] ; then
+        echo "No hostname or private_key have been defined: tor will generate them automatically."
+    fi
+fi
+
+echo "You can check your hostname by running the following local command:"
+echo "heroku ps:exec 'cat ${HOME}/hidden_service/hostname'"
 
 echo "Starting Tor"
 $HOME/tor/bin/tor -f ${HOME}/tor/etc/tor/torrc
