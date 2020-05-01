@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exo
+set -eo pipefail
 
 # Create tor hidden_service dir for storing hostname and private_key files
 echo "[TOR] Ensuring hidden_service directory exists"
