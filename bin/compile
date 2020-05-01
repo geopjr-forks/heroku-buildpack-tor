@@ -103,7 +103,7 @@ echo "${TOR_SRC_NAME}" > $CACHE_DIR/tor_version.txt
 mkdir -p "/tmp/heroku-buildpack-tor/"
 cp ./lib/torrc.erb "/tmp/heroku-buildpack-tor/torrc.erb"
 
-cat > ${BUILD_DIR}/tor/bin/${RUN_COMMAND} <<EOF
+cat > ${BUILD_DIR}/tor/bin/${RUN_COMMAND} << EOF
 #!/usr/bin/env bash
 
 echo "Ensuring hidden_service directory"
@@ -115,7 +115,7 @@ if [ ! -f "${HOME}/hidden_service/private_key" ]; then
     if [ -z \${HIDDEN_PRIVATE_KEY} ]; then
         cat > ${HOME}/hidden_service/private_key << EPK
 \${HIDDEN_PRIVATE_KEY}
-        EPK
+EPK
     else
         echo "Key not found in hidden_service/private_key or HIDDEN_PRIVATE_KEY env"
         TOR_PRIVATE_KEY_SET=0
