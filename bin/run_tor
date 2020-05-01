@@ -21,12 +21,6 @@ else
     echo "[TOR] WARNING: env HIDDEN_DOT_ONION is not set"
 fi
 
-# Exit if private_key file does not exist
-if [ ! -f "${HOME}/hidden_service/private_key" ] || [ ! -f "${HOME}/hidden_service/hostname" ]; then
-    echo "[TOR] WARNING: key-hostname pair not specified, Tor will generate a new .onion address"
-    rm -f "${HOME}/hidden_service/private_key" "${HOME}/hidden_service/hostname"
-fi
-
 # Generate the torrc file using the app's custom template (if set), else the default template
 if [ -f "${HOME}/config/torrc.erb" ]; then
     echo "[TOR] Compiling user-defined torrc from config/torrc.erb"
@@ -35,6 +29,32 @@ else
     echo "[TOR] Using default torrc.erb"
     erb "${HOME}/tor/torrc.erb" > "${HOME}/tor/etc/tor/torrc"
 fi
+
+# Generate a new private key and hostname if both were not specified
+if [ ! -f "${HOME}/hidden_service/private_key" ] || [ ! -f "${HOME}/hidden_service/hostname" ]; then
+    echo "[TOR] WARNING: Private key and/or hostname were not specified"
+    echo "[TOR] WARNING: Attempting to generate a new private key and hostname"
+
+    # Ensure both private_key and hostname files are really gone
+    rm -f "${HOME}/hidden_service/private_key" "${HOME}/hidden_service/hostname"
+
+    # Start Tor in the background and track the PID
+    "${HOME}/tor/bin/tor" -f "${HOME}/tor/etc/tor/torrc" & TOR_PID=$!
+
+    # Wait until private key and hostname are generated then kill Tor (for now)
+    TOR_AUTOGEN_TRIES_REMAINING=5
+    while [ ! -f "${HOME}/hidden_service/private_key" ] && [ ! -f "${HOME}/hidden_service/hostname" ]; do
+        TOR_AUTOGEN_TRIES_REMAINING=$((TOR_AUTOGEN_TRIES_REMAINING-1))
+        if [ TOR_AUTOGEN_TRIES_REMAINING -eq 0 ]; then
+            echo "[TOR] FAILURE: Unable to automatically generate a hostname and private_key"
+            exit 1
+        fi
+        sleep 1
+    done
+    kill TOR_PID
+fi
+
+# Validate tor config
 
 TOR_HOSTNAME=$(cat "${HOME}/hidden_service/hostname")
 
