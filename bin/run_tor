@@ -51,7 +51,7 @@ if [ ! -f "${HOME}/hidden_service/private_key" ] || [ ! -f "${HOME}/hidden_servi
         fi
         sleep 1
     done
-    kill TOR_PID
+    kill $TOR_PID
     echo "[TOR] Successfully generated new hostname and private_key in hidden_service dir"
 fi
 
