@@ -7,16 +7,16 @@ mkdir -p "${HOME}/hidden_service"
 
 # WRite the private_key file using HIDDEN_PRIVATE_KEY if set
 echo "[TOR] Writing hidden_service/private_key file from HIDDEN_PRIVATE_KEY env"
-if [ ! -z ${HIDDEN_PRIVATE_KEY} ]; then
-    echo -e ${HIDDEN_PRIVATE_KEY} > "${HOME}/hidden_service/private_key"
+if [ ! -z "${HIDDEN_PRIVATE_KEY}" ]; then
+    echo -e "${HIDDEN_PRIVATE_KEY}" > "${HOME}/hidden_service/private_key"
 else
     echo "[TOR] WARNING: env HIDDEN_PRIVATE_KEY is not set"
 fi
 
 # Write the hostname file using HIDDEN_DOT_ONION if set
 echo "[TOR] Writing hidden_service/hostname file from HIDDEN_DOT_ONION env"
-if [ ! -z ${HIDDEN_DOT_ONION} ]; then
-    echo ${HIDDEN_DOT_ONION} > "${HOME}/hidden_service/hostname"
+if [ ! -z "${HIDDEN_DOT_ONION}" ]; then
+    echo "${HIDDEN_DOT_ONION}" > "${HOME}/hidden_service/hostname"
 else
     echo "[TOR] WARNING: env HIDDEN_DOT_ONION is not set"
 fi
