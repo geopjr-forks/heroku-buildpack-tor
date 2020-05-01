@@ -42,12 +42,16 @@ else
     erb "${HOME}/tor/torrc.erb" > "${HOME}/tor/etc/tor/torrc"
 fi
 
+TOR_HOSTNAME=$(cat "${HOME}/hidden_service/hostname")
+
 # Print some useful info
+echo ""
 echo "[TOR] ==================================================================="
-echo "[TOR] Starting hidden service at $(cat \"${HOME}/hidden_service/hostname\")"
+echo "[TOR] Starting hidden service at ${TOR_HOSTNAME}"
 echo "[TOR] You may dangerously print your private_key by running this command:"
-echo "[TOR] heroku ps:exec --dyno=${DYNO} cat \"${HOME}/hidden_service/private_key\""
+echo "[TOR] heroku ps:exec --dyno=${DYNO} 'cat \"${HOME}/hidden_service/private_key\"'"
 echo "[TOR] ==================================================================="
+echo ""
 
 # Start Tor
 "${HOME}/tor/bin/tor" -f "${HOME}/tor/etc/tor/torrc"
