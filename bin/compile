@@ -5,7 +5,7 @@ set -exo pipefail
 RUN_COMMAND=run_tor
 TOR_VER=0.3.5.9
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
-TOR_DIST_URL=https://www.torproject.org/dist/
+TOR_DIST_URL=https://dist.torproject.org/
 
 # Variables
 BUILD_DIR=$1
@@ -62,16 +62,8 @@ fi
 ################################################################################
 
 if [ $TOR_IS_CACHED -eq 0 ] ; then
-
-    # echo "[TOR  ] Importing PGP signature"
-    # cat ${TOR_SRC_NAME} | gpg --import
-    # gpg --keyserver pool.sks-keyservers.net --recv-keys 0x4E2C6E8793298290
-    # gpg --keyserver pool.sks-keyservers.net --recv-keys 0x6AFEE6D49E92B601
-    # gpg --keyserver keys.gnupg.net --recv A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
-    # gpg --keyserver hkps.pool.sks-keyservers.net --recv-keys 0x4E2C6E8793298290
-    # gpg --keyserver keys.gnupg.net --recv-keys 0x4E2C6E8793298290
-    # gpg --keyserver pgp.uni-mainz.de --recv-keys 0x4E2C6E8793298290
-    # gpg --keyserver pgp.mit.edu --recv-keys 0x4E2C6E8793298290
+    echo "[TOR  ] Importing Tor PGP public key"
+    gpg --keyserver pgp.mit.edu --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
 
     echo "[TOR]  Verifying signature of Tor package"
     gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME} | grep -c "Good signature"
