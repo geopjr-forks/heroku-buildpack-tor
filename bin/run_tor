@@ -22,15 +22,9 @@ else
 fi
 
 # Exit if private_key file does not exist
-if [ ! -f "${HOME}/hidden_service/private_key" ]; then
-    echo "[TOR] ERROR: hidden_service/private_key not found: did you set HIDDEN_PRIVATE_KEY?"
-    exit 1
-fi
-
-# Exit if hostname file does not exist
-if [ ! -f "${HOME}/hidden_service/hostname" ]; then
-    echo "[TOR] ERROR: hidden_service/hostname not found: did you set HIDDEN_DOT_ONION?"
-    exit 1
+if [ ! -f "${HOME}/hidden_service/private_key" ] || [ ! -f "${HOME}/hidden_service/hostname" ]; then
+    echo "[TOR] WARNING: key-hostname pair not specified, Tor will generate a new .onion address"
+    rm -f "${HOME}/hidden_service/private_key" "${HOME}/hidden_service/hostname"
 fi
 
 # Generate the torrc file using the app's custom template (if set), else the default template
