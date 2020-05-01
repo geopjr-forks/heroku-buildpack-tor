@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exo
+set -eo pipefail
 
 # Constants
 RUN_COMMAND=run_tor
