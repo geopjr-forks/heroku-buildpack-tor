@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exo pipefail
+set -eo pipefail
 
 # Constants
 RUN_COMMAND=run_tor
@@ -75,6 +75,7 @@ if [ $TOR_IS_CACHED -eq 0 ] ; then
         echo "[TOR]  FAILED to verify the signature"
         exit 1
     fi
+    echo "[TOR]  Signature verified"
 fi
 
 ################################################################################
