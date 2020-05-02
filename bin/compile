@@ -65,9 +65,13 @@ if [ $TOR_IS_CACHED -eq 0 ] ; then
     echo "[TOR  ] Importing Tor PGP public key"
     gpg --keyserver pgp.mit.edu --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
 
+    # NOTE: The Tor official docs do not link to the public key for the Tor package.
+    # The most reliable source appears to be this:
+    # https://trac.torproject.org/projects/tor/ticket/31090
+
     echo "[TOR]  Verifying signature of Tor package"
-    gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME} | grep -c "Good signature"
-    if [ $? -lt 1 ]; then
+    gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME}
+    if [ ! $? -eq 0 ]; then
         echo "[TOR]  FAILED to verify the signature"
         exit 1
     fi
