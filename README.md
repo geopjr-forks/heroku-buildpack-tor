@@ -2,6 +2,8 @@
 
 This buildpack sets up a Tor V2 hidden service for your app on Heroku.
 
+**Neither Tor nor this buildpack guarantee your privacy. Use at your own risk.**
+
 ## Setup
 
 Create a Heroku app as normal, with any buildpacks you typically use.
@@ -34,6 +36,73 @@ Your app will only be accessible over Tor, through your configured `.onion` addr
 
 ##### WARNING
 If your app is hosted on the `<appname>.herokuapp.com` domain, you should NOT use a `web` dyno unless you have a plan to circumvent Heroku's automatic HTTPS redirects. More info below.
+
+## Tutorial (Linux/OSX)
+
+*This guide will provide step-by-step instructions for creating a new Tor hidden service from scratch. We'll use create-react-app for simplicity, but your webserver can be whatever you want.*
+
+##### Step 1: Create a New Heroku App
+
+First we need to create a new project and connect it to Heroku. Using `create-react-app` will initialize `git` for us and set up a working webserver. The `mars/create-react-app` buildpack will allow us to run the project on Heroku without any configuration.
+
+```sh
+APP_NAME="my-secret-app"
+npx create-react-app $APP_NAME  # Create project
+cd $APP_NAME
+heroku create $APP_NAME --buildpack mars/create-react-app  # Connect to Heroku
+git push heroku master  # Deploy to Heroku
+```
+
+Three commands and we've already deployed our app to Heroku! Type `heroku open` to see it in your browser.
+
+##### Step 2: Install and Use Buildpack
+
+With our app online, now is a fine time to add heroku-buildpack-tor.
+
+```sh
+heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git
+```
+
+To actually use the buildpack, we'll need to create a [`Procfile`](https://devcenter.heroku.com/articles/procfile). This is the file that tells Heroku what commands to run when the app starts.
+
+```sh
+START_SERVER_COMMAND="./tor/bin/run_tor & /bin/boot"
+echo "tor: $START_SERVER_COMMAND" > Procfile
+```
+
+Let's break that down. `./tor/bin/run_tor` starts Tor. `/bin/boot` comes from [create-react-app-buildpack](https://github.com/mars/create-react-app-buildpack#procfile) and starts the webserver. So the above creates a new Procfile that defines a worker dyno named "tor", and specifies that it should start Tor plus the webserver when the app starts.
+
+Deploy your new Procfile the usual way.
+
+```sh
+git add .
+git commit -m "run app as Tor hidden service"
+git push heroku master  # Deploy changes
+```
+
+##### Step 3: Access Your New Tor Hidden Service
+
+In the previous step we created a Procfile with a worker dyno named "tor". Heroku doesn't start worker dynos automatically so we need to do it ourselves:
+
+```sh
+heroku ps:scale tor=1  # Start our new webserver
+```
+
+Congrats! You have just deployed a Tor hidden service to Heroku. But where is it? Since we didn't specify a .onion address ourselves, Tor went ahead and generated one for us. We can pull it from the logs using `heroku logs --tail`. Scroll up until you see a section that looks like this:
+
+```
+[TOR] ===================================================================
+[TOR] Starting hidden service at jdiop35tbhgnwlqi.onion
+[TOR] You may dangerously print your private_key by running this command:
+[TOR] heroku ps:exec --dyno=tor.1 'cat "/app/hidden_service/private_key"'
+[TOR] ===================================================================
+```
+
+In this case our auto-generated .onion address is `jdiop35tbhgnwlqi.onion`. Plop that address into your Tor Browser and gape in breathless wonder at your brand new Tor service!
+
+##### Step 4: Get a Permanent .onion Address (Optional)
+
+Since you're still not specifying a specific .onion address and private key, Tor will generate a new one for you on each deploy. If you want to make the current address permanent you'll need to follow the instructions in the **Environment Variables** section. Happy hacking!
 
 ## Configuring your torrc
 
