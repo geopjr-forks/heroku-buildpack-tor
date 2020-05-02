@@ -64,7 +64,8 @@ fi
 
 if [ $TOR_IS_CACHED -eq 0 ] ; then
     echo "[TOR  ] Importing Tor PGP public key"
-    gpg --keyserver pgp.mit.edu --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
+    gpg --keyserver hkp://pgp.mit.edu --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
+    gpg --keyserver hkp://pool.sks-keyservers.net --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
 
     # NOTE: The Tor official docs do not link to the public key for the Tor package.
     # The most reliable source appears to be this:
