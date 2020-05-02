@@ -12,10 +12,10 @@ Then:
 
 ```sh
 # Add heroku-buildpack-tor as a custom buildpack
-$ heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git
+heroku buildpacks:add jtschoonhoven/heroku-buildpack-tor
 
 # Optionally pin a specific version (strongly recommended for production)
-$ heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git#v0.1.4
+heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git#v0.1.4
 ```
 
 With the buildpack installed, you'll need to modify your Procfile such that the hidden service will be setup when the app runs.
@@ -60,17 +60,17 @@ Three commands and we've already deployed our app to Heroku! Type `heroku open` 
 With our app online, now is a fine time to add heroku-buildpack-tor.
 
 ```sh
-heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git
+heroku buildpacks:add jtschoonhoven/heroku-buildpack-tor
 ```
 
 To actually use the buildpack, we'll need to create a [`Procfile`](https://devcenter.heroku.com/articles/procfile). This is the file that tells Heroku what commands to run when the app starts.
 
 ```sh
-START_SERVER_COMMAND="./tor/bin/run_tor & /bin/boot"
+START_SERVER_COMMAND="./tor/bin/run_tor & bin/boot"
 echo "tor: $START_SERVER_COMMAND" > Procfile
 ```
 
-Let's break that down. `./tor/bin/run_tor` starts Tor. `/bin/boot` comes from [create-react-app-buildpack](https://github.com/mars/create-react-app-buildpack#procfile) and starts the webserver. So the above creates a new Procfile that defines a worker dyno named "tor", and specifies that it should start Tor plus the webserver when the app starts.
+Let's break that down. `./tor/bin/run_tor` starts Tor. `bin/boot` comes from [create-react-app-buildpack](https://github.com/mars/create-react-app-buildpack#procfile) and starts the webserver. So the above creates a new Procfile that defines a worker dyno named "tor", and specifies that it should start Tor plus the webserver when the app starts.
 
 Deploy your new Procfile the usual way.
 
