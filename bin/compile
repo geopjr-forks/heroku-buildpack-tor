@@ -70,8 +70,9 @@ fi
 
 if [ $TOR_IS_CACHED -eq 0 ]; then
     echo "[TOR]  Importing Tor PGP public key from keyservers"
-    gpg --keyserver hkp://pgp.mit.edu --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  MIT Keyserver unavailable"
-    gpg --keyserver hkp://pool.sks-keyservers.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  SKS Keyserver unavailable"
+    gpg --keyserver pgp.mit.edu --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  MIT Keyserver unavailable"
+    gpg --keyserver pool.sks-keyservers.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  SKS Keyserver unavailable"
+    gpg --keyserver keys.gnupg.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  GNU Keyserver unavailable"
 
     echo "[TOR]  Verifying signature of Tor package"
     gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME}
