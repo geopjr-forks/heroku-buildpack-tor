@@ -6,6 +6,7 @@ RUN_COMMAND=run_tor
 TOR_VER=0.3.5.9
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://dist.torproject.org/
+BUILDPACK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # https://stackoverflow.com/a/246128/3076390
 
 # Variables
 BUILD_DIR=$1
@@ -104,15 +105,15 @@ fi
 ################################################################################
 
 # Cached installation to real build dir
-cp -r $CACHE_DIR/tor ${BUILD_DIR}
+cp -r "${CACHE_DIR}/tor" "${BUILD_DIR}"
 
 # Saves the version just compiled
 echo "${TOR_SRC_NAME}" > "${CACHE_DIR}/tor_version.txt"
 
 # Copy the default torrc.erb template file to the tor directory
-cp ./lib/torrc.erb "${BUILD_DIR}/tor/torrc.erb"
+cp ."${BUILDPACK_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
 
 # Copy the run_tor executable to the tor directory
-cp ./bin/run_tor "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
+cp "${BUILDPACK_DIR}/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
 
 echo "[TOR]  Installed successfully"
