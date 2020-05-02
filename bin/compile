@@ -85,7 +85,7 @@ fi
 ################################################################################
 
 if [ $TOR_IS_CACHED -eq 0 ] ; then
-    echo "[TOR]  Compiling Tor package"
+    echo "[TOR]  Compiling Tor package. This may take a while."
     tar -zxf ${TOR_SRC_NAME}
     cd tor-${TOR_VER}
     ./configure --prefix=$CACHE_DIR/tor
