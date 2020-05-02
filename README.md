@@ -34,14 +34,14 @@ tor: $PORT=8080 ./tor/bin/run_tor & <cmd you'd normally run>
 
 Your app will only be accessible over Tor, through your configured `.onion` address.
 
-##### WARNING
+#### WARNING
 If your app is hosted on the `<appname>.herokuapp.com` domain, you should NOT use a `web` dyno unless you have a plan to circumvent Heroku's automatic HTTPS redirects. More info below.
 
 ## Tutorial (Linux/OSX)
 
 *This guide will provide step-by-step instructions for creating a new Tor hidden service from scratch. We'll use create-react-app for simplicity, but your webserver can be whatever you want.*
 
-##### Step 1: Create a New Heroku App
+#### Step 1: Create a New Heroku App
 
 First we need to create a new project and connect it to Heroku. Using `create-react-app` will initialize `git` for us and set up a working webserver. The `mars/create-react-app` buildpack will allow us to run the project on Heroku without any configuration.
 
@@ -55,7 +55,7 @@ git push heroku master  # Deploy to Heroku
 
 Three commands and we've already deployed our app to Heroku! Type `heroku open` to see it in your browser.
 
-##### Step 2: Install and Use Buildpack
+#### Step 2: Install and Use Buildpack
 
 With our app online, now is a fine time to add heroku-buildpack-tor.
 
@@ -80,7 +80,7 @@ git commit -m "run app as Tor hidden service"
 git push heroku master  # Deploy changes
 ```
 
-##### Step 3: Access Your New Tor Hidden Service
+#### Step 3: Access Your New Tor Hidden Service
 
 In the previous step we created a Procfile with a worker dyno named "tor". Heroku doesn't start worker dynos automatically so we need to do it ourselves:
 
@@ -100,7 +100,7 @@ Congrats! You have just deployed a Tor hidden service to Heroku. But where is it
 
 In this case our auto-generated .onion address is `jdiop35tbhgnwlqi.onion`. Plop that address into your Tor Browser and gape in breathless wonder at your brand new Tor service!
 
-##### Step 4: Get a Permanent .onion Address (Optional)
+#### Step 4: Get a Permanent .onion Address (Optional)
 
 Since you're still not specifying a specific .onion address and private key, Tor will generate a new one for you on each deploy. If you want to make the current address permanent you'll need to follow the instructions in the **Environment Variables** section. Happy hacking!
 
