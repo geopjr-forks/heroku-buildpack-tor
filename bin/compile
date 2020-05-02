@@ -6,15 +6,21 @@ RUN_COMMAND=run_tor
 TOR_VER=0.3.5.9
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://dist.torproject.org/
-BUILDPACK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # https://stackoverflow.com/a/246128/3076390
 
-# Variables
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 TOR_SIG_NAME=${TOR_SRC_NAME}.asc
 TOR_SRC_URL=${TOR_DIST_URL}${TOR_SRC_NAME}
 TOR_SRC_SIG_URL=${TOR_DIST_URL}${TOR_SIG_NAME}
+
+# https://stackoverflow.com/a/246128/3076390
+BUILDPACK_BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# NOTE: The Tor official docs do not link to the public key for the Tor package.
+# The most reliable source appears to be this:
+# https://trac.torproject.org/projects/tor/ticket/31090
+TOR_PUBKEY_ID="7A02B3521DC75C542BA015456AFEE6D49E92B601"
 
 ################################################################################
 # TRY USE CACHE
@@ -62,14 +68,10 @@ fi
 # VERIFY INTEGRITY
 ################################################################################
 
-if [ $TOR_IS_CACHED -eq 0 ] ; then
-    echo "[TOR  ] Importing Tor PGP public key"
-    gpg --keyserver hkp://pgp.mit.edu --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
-    gpg --keyserver hkp://pool.sks-keyservers.net --recv-key 7A02B3521DC75C542BA015456AFEE6D49E92B601
-
-    # NOTE: The Tor official docs do not link to the public key for the Tor package.
-    # The most reliable source appears to be this:
-    # https://trac.torproject.org/projects/tor/ticket/31090
+if [ $TOR_IS_CACHED -eq 0 ]; then
+    echo "[TOR]  Importing Tor PGP public key from keyservers"
+    gpg --keyserver hkp://pgp.mit.edu --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  MIT Keyserver unavailable"
+    gpg --keyserver hkp://pool.sks-keyservers.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  SKS Keyserver unavailable"
 
     echo "[TOR]  Verifying signature of Tor package"
     gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME}
@@ -112,9 +114,9 @@ cp -r "${CACHE_DIR}/tor" "${BUILD_DIR}"
 echo "${TOR_SRC_NAME}" > "${CACHE_DIR}/tor_version.txt"
 
 # Copy the default torrc.erb template file to the tor directory
-cp "${BUILDPACK_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
+cp "${BUILDPACK_BIN_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
 
 # Copy the run_tor executable to the tor directory
-cp "${BUILDPACK_DIR}/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
+cp "${BUILDPACK_BIN_DIR}/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
 
 echo "[TOR]  Installed successfully"
