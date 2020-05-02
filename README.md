@@ -15,7 +15,7 @@ Then:
 heroku buildpacks:add jtschoonhoven/heroku-buildpack-tor
 
 # Optionally pin a specific version (strongly recommended for production)
-heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git#v0.1.4
+heroku buildpacks:add https://github.com/jtschoonhoven/heroku-buildpack-tor.git#v0.1.25
 ```
 
 With the buildpack installed, you'll need to modify your Procfile such that the hidden service will be setup when the app runs.
