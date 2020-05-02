@@ -112,7 +112,7 @@ cp -r "${CACHE_DIR}/tor" "${BUILD_DIR}"
 echo "${TOR_SRC_NAME}" > "${CACHE_DIR}/tor_version.txt"
 
 # Copy the default torrc.erb template file to the tor directory
-cp ."${BUILDPACK_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
+cp "${BUILDPACK_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
 
 # Copy the run_tor executable to the tor directory
 cp "${BUILDPACK_DIR}/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
