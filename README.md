@@ -2,7 +2,9 @@
 
 This buildpack sets up a Tor V2 hidden service for your app on Heroku.
 
-**Neither Tor nor this buildpack guarantee your privacy. Use at your own risk.**
+#### Disclaimer
+
+This is a buildpack for hobbyists and nerds, not for political dissidents, aspiring drug dealers, or anyone else who requires real anonymity. If your safety and/or cartel is really on the line, I recommend considering another approach. Even if this buildpack is perfectly-configured (and you should not assume that it is) you are still at the mercy of Heroku.
 
 ## Setup
 
