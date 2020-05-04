@@ -43,6 +43,8 @@ If your app is hosted on the `<appname>.herokuapp.com` domain, you should NOT us
 
 *This guide will provide step-by-step instructions for creating a new Tor hidden service from scratch. We'll use create-react-app for simplicity, but your webserver can be whatever you want.*
 
+You can also view this tutorial (with gifs!) as a [Medium story](https://medium.com/@jtschoonhoven/deploying-a-tor-hidden-service-to-heroku-in-5-minutes-60bc61583e58).
+
 #### Step 1: Create a New Heroku App
 
 First we need to create a new project and connect it to Heroku. Using `create-react-app` will initialize `git` for us and set up a working webserver. The `mars/create-react-app` buildpack will allow us to run the project on Heroku without any configuration.
