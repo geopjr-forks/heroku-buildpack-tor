@@ -118,6 +118,6 @@ echo "${TOR_SRC_NAME}" > "${CACHE_DIR}/tor_version.txt"
 cp "${BUILDPACK_BIN_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
 
 # Copy the run_tor executable to the tor directory
-cp "${BUILDPACK_BIN_DIR}/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
+cp "${BUILDPACK_BIN_DIR}/../lib/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
 
 echo "[TOR]  Installed successfully"
