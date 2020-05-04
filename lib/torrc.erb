@@ -7,3 +7,6 @@ HiddenServicePort 8080 127.0.0.1:<%= ENV['PORT'] || '8080' %>
 
 # HiddenServiceVersion: This buildpack currently only supports V2 hidden services
 HiddenServiceVersion 2
+
+# Send logs at level "notice" or higher to stdout
+Log notice stdout
