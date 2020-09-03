@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# Create tor hidden_service dir for storing hostname and private_key files
+# Create tor hidden_service dir for storing hostname, hs_ed25519_secret_key, and hs_ed25519_public_key files
 echo "[TOR] Ensuring hidden_service directory exists"
 mkdir -p "${HOME}/hidden_service"
 
-# WRite the private_key file using HIDDEN_PRIVATE_KEY if set
-echo "[TOR] Writing hidden_service/private_key file from HIDDEN_PRIVATE_KEY env"
-if [ ! -z "${HIDDEN_PRIVATE_KEY}" ]; then
-    echo -e "${HIDDEN_PRIVATE_KEY}" > "${HOME}/hidden_service/private_key"
+# Write the hs_ed25519_secret_key file from config folder if set
+if [ -f "${HOME}/config/hs_ed25519_secret_key.erb" ]; then
+    echo "[TOR] Compiling user-defined hs_ed25519_secret_key from config/hs_ed25519_secret_key.erb"
+    erb "${HOME}/config/hs_ed25519_secret_key.erb" > "${HOME}/hidden_service//hs_ed25519_secret_key"
 else
-    echo "[TOR] WARNING: env HIDDEN_PRIVATE_KEY is not set"
+    echo "[TOR] No hs_ed25519_secret_key found in config folder"
+fi
+
+# Write the hs_ed25519_public_key file from config folder if set
+if [ -f "${HOME}/config/hs_ed25519_public_key.erb" ]; then
+    echo "[TOR] Compiling user-defined hs_ed25519_public_key from config/hs_ed25519_public_key.erb"
+    erb "${HOME}/config/hs_ed25519_public_key.erb" > "${HOME}/hidden_service//hs_ed25519_public_key"
+else
+    echo "[TOR] No hs_ed25519_public_key found in config folder"
 fi
 
 # Write the hostname file using HIDDEN_DOT_ONION if set
@@ -30,29 +38,29 @@ else
     erb "${HOME}/tor/torrc.erb" > "${HOME}/tor/etc/tor/torrc"
 fi
 
-# Generate a new private key and hostname if both were not specified
-if [ ! -f "${HOME}/hidden_service/private_key" ] || [ ! -f "${HOME}/hidden_service/hostname" ]; then
-    echo "[TOR] WARNING: Private key and/or hostname were not specified"
-    echo "[TOR] WARNING: Attempting to generate a new private key and hostname"
+# Generate a new hs_ed25519_secret_key, hs_ed5519_public_key, and hostname if both were not specified
+if [ ! -f "${HOME}/hidden_service/hs_ed25519_secret_key" ] || [ ! -f "${HOME}/hidden_service/hs_ed25519_public_key" ] || [ ! -f "${HOME}/hidden_service/hostname" ]; then
+    echo "[TOR] WARNING: hs_ed25519_secret_key, hs_ed25519_public_key, and/or hostname were not specified"
+    echo "[TOR] WARNING: Attempting to generate a new hs_ed25519_secret_key, hs_ed25519_public_key, and hostname"
 
-    # Ensure both private_key and hostname files are really gone
-    rm -f "${HOME}/hidden_service/private_key" "${HOME}/hidden_service/hostname"
+    # Ensure that hs_ed25519_secret_key, hs_ed5519_public_key, and hostname files are really gone
+    rm -f "${HOME}/hidden_service/hs_ed25519_secret_key" "${HOME}/hidden_service/hs_ed5519_public_key" "${HOME}/hidden_service/hostname"
 
     # Start Tor in the background and track the PID
     "${HOME}/tor/bin/tor" -f "${HOME}/tor/etc/tor/torrc" & TOR_PID=$!
 
-    # Wait until private key and hostname are generated then kill Tor (for now)
+    # Wait until hs_ed25519_secret_key, hs_ed5519_public_key, and hostname are generated then kill Tor (for now)
     TOR_AUTOGEN_TRIES_REMAINING=5
-    while [ ! -f "${HOME}/hidden_service/private_key" ] && [ ! -f "${HOME}/hidden_service/hostname" ]; do
+    while [ ! -f "${HOME}/hidden_service/hs_ed25519_secret_key" ] && [ ! -f "${HOME}/hidden_service/hs_ed25519_public_key" ] && [ ! -f "${HOME}/hidden_service/hostname" ]; do
         TOR_AUTOGEN_TRIES_REMAINING=$((TOR_AUTOGEN_TRIES_REMAINING-1))
         if [ $TOR_AUTOGEN_TRIES_REMAINING -eq 0 ]; then
-            echo "[TOR] FAILURE: Unable to generate a hostname and private_key"
+            echo "[TOR] FAILURE: Unable to generate a hs_ed25519_public_key, hs_ed25519_secret_key, and hostname"
             exit 1
         fi
         sleep 1
     done
     kill $TOR_PID
-    echo "[TOR] Successfully generated new hostname and private_key"
+    echo "[TOR] Successfully generated new hs_ed25519_public_key, hs_ed25519_secret_key, and hostname"
 fi
 
 # Validate tor config
@@ -63,8 +71,8 @@ TOR_HOSTNAME=$(cat "${HOME}/hidden_service/hostname")
 echo ""
 echo "[TOR] ==================================================================="
 echo "[TOR] Starting hidden service at ${TOR_HOSTNAME}"
-echo "[TOR] You may dangerously print your private_key by running this command:"
-echo "[TOR] heroku ps:exec --dyno=${DYNO} 'cat \"${HOME}/hidden_service/private_key\"'"
+echo "[TOR] You may dangerously print your hs_ed25519_secret_key by running this command:"
+echo "[TOR] heroku ps:exec --dyno=${DYNO} 'cat \"${HOME}/hidden_service/hs_ed25519_secret_key\"'"
 echo "[TOR] ==================================================================="
 echo ""
 
