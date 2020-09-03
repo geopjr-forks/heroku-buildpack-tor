@@ -21,12 +21,12 @@ else
     echo "[TOR] No hs_ed25519_public_key found in config folder"
 fi
 
-# Write the hostname file using HIDDEN_DOT_ONION if set
-echo "[TOR] Writing hidden_service/hostname file from HIDDEN_DOT_ONION env"
-if [ ! -z "${HIDDEN_DOT_ONION}" ]; then
-    echo "${HIDDEN_DOT_ONION}" > "${HOME}/hidden_service/hostname"
+# Write the hostname file using ONION_LOCATION if set
+echo "[TOR] Writing hidden_service/hostname file from ONION_LOCATION env"
+if [ ! -z "${ONION_LOCATION}" ]; then
+    echo "${ONION_LOCATION}" > "${HOME}/hidden_service/hostname"
 else
-    echo "[TOR] WARNING: env HIDDEN_DOT_ONION is not set"
+    echo "[TOR] WARNING: env ONION_LOCATION is not set"
 fi
 
 # Generate the torrc file using the app's custom template (if set), else the default template
