@@ -31,7 +31,8 @@ web: ./tor/bin/run_tor & <your usual dyno cmd>
 The free .herokuapp.com domain automatically redirects to HTTPS, but you can use a custom port to circumvent this.
 Add the following to your torrc.erb (referred to above):
 ```
-HiddenServicePort <pick a port> 127.0.0.1:<your port>
+HiddenServicePort <pick-a-port> 127.0.0.1:<your-port>
 ```
+Your onionsite should then be available at yourv3onionaddress.onion:your-port
 
 If you get stuck, please feel free to defer to jtschoonhoven's buildpack/fork/Medium story for a much more in-depth tutorial. Most of the instructions apply except for the private_key ones specific to V2 .onion addresses, which I've updated for V3 .onion addresses here.
