@@ -32,7 +32,7 @@ web: ./tor/bin/run_tor & <your usual dyno cmd>
 2. Set the .onion address inside the hostname file as an environment variable named "ONION_LOCATION"
 3. Create a folder named "config" in your app's root folder
 4. Copy and paste your hs_ed25519_public_key/hs_ed25519_secret_key files here, and rename them so that ".erb" is at the end of each
-5. Create/put your custom torrc file in this config folder, and also rename it so that ".erb" is at the end.  The HiddenServiceDir should point to /app/hidden_service/
+5. Create/put your custom torrc file in this config folder, and also rename it so that ".erb" is at the end.  The HiddenServiceDir should point to /app/hidden_service/ (see the included default torrc.erb for an example of how to do so)
 6. Modify your procfile as outlined in the previous section if you haven't yet done so
 7. Deploy your app
 
