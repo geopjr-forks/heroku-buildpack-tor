@@ -5,8 +5,7 @@ HiddenServiceDir <%= ENV['HOME'] || 'app' %>/hidden_service/
 HiddenServicePort 80 127.0.0.1:<%= ENV['PORT'] || '8080' %>
 HiddenServicePort 8080 127.0.0.1:<%= ENV['PORT'] || '8080' %>
 
-# HiddenServiceVersion: This buildpack currently only supports V2 hidden services
-HiddenServiceVersion 2
+# HiddenServiceVersion: This buildpack currently only supports V3 hidden services, and V3 is default
 
 # Send logs at level "notice" or higher to stdout
 Log notice stdout
