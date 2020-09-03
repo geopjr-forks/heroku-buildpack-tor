@@ -24,7 +24,7 @@ This buildpack has a specific hobbyist use case, and is not intended for any use
 web: ./tor/bin/run_tor & <your usual dyno cmd>
 ```
 2. Deploy your app
-3. Run "heroku logs --tail" to see the .onion address you generated
+3. Run "heroku logs --tail" to see the .onion address you generated. With this setup, the address will change with each redeploy. However,
 
 # To set your own permanent V3 .onion address
 
