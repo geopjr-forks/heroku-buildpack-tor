@@ -8,7 +8,7 @@ mkdir -p "${HOME}/hidden_service"
 # Write the hs_ed25519_secret_key file from config folder if set
 if [ -f "${HOME}/config/hs_ed25519_secret_key.erb" ]; then
     echo "[TOR] Compiling user-defined hs_ed25519_secret_key from config/hs_ed25519_secret_key.erb"
-    erb "${HOME}/config/hs_ed25519_secret_key.erb" > "${HOME}/hidden_service//hs_ed25519_secret_key"
+    erb "${HOME}/config/hs_ed25519_secret_key.erb" > "${HOME}/hidden_service/hs_ed25519_secret_key"
 else
     echo "[TOR] No hs_ed25519_secret_key found in config folder"
 fi
@@ -16,7 +16,7 @@ fi
 # Write the hs_ed25519_public_key file from config folder if set
 if [ -f "${HOME}/config/hs_ed25519_public_key.erb" ]; then
     echo "[TOR] Compiling user-defined hs_ed25519_public_key from config/hs_ed25519_public_key.erb"
-    erb "${HOME}/config/hs_ed25519_public_key.erb" > "${HOME}/hidden_service//hs_ed25519_public_key"
+    erb "${HOME}/config/hs_ed25519_public_key.erb" > "${HOME}/hidden_service/hs_ed25519_public_key"
 else
     echo "[TOR] No hs_ed25519_public_key found in config folder"
 fi
