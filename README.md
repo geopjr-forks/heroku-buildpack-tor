@@ -2,7 +2,7 @@
 
 This buildpack sets up a Tor V3 onion service for your app on Heroku.
 
-I will be regularly manually updating the Tor version, which may require you to clear your build cache upon your next git push for your app when I do so. Easy instructions are in this link:
+I will be regularly and manually updating the Tor version, which may require you to clear your build cache upon your next git push for your app when I do so. Easy instructions are in this link:
 
 https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache
 
