@@ -35,4 +35,6 @@ HiddenServicePort <pick-a-port> 127.0.0.1:<your-port>
 ```
 Your onionsite should then be available at yourv3onionaddress.onion:your-port
 
+# Misc
+
 If you get stuck, please feel free to defer to jtschoonhoven's buildpack/fork/Medium story for a much more in-depth tutorial. Most of the instructions apply except for the private_key ones specific to V2 .onion addresses, which I've updated for V3 .onion addresses here.
