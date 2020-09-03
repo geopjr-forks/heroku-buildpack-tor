@@ -50,7 +50,7 @@ if [ $TOR_IS_CACHED -eq 0 ]; then
     echo "[TOR]  Downloading ${TOR_SRC_URL}"
     wget -q $TOR_SRC_URL
 
-    if [ $? -ne 0]; then
+    if [ $? -ne 0 ]; then
         echo "[TOR]  FAILED to obtain ${TOR_SRC_URL}"
         exit 1
     fi
