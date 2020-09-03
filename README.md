@@ -2,7 +2,7 @@
 
 This buildpack sets up a Tor V3 hidden service for your app on Heroku.
 
-I will be regularly manually updating the Tor version, which may require you to clear your build cache upon your next git push for your app when I do so. Easy instructions in this link:
+I will be regularly manually updating the Tor version, which may require you to clear your build cache upon your next git push for your app when I do so. Easy instructions are in this link:
 
 https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache
 
@@ -14,7 +14,7 @@ heroku buildpacks:add https://github.com/EJTheSnail/heroku-buildpack-tor.git#v<v
 
 # Disclaimer
 
-This buildpack has a specific hobbyist use-case scenario, and is not intended for any use involving gravely serious requirements of anonymity. If you must use Tor for such a reason, please look into other ways of deploying web apps onto the dark web.
+This buildpack has a specific hobbyist use case, and is not intended for any use involving gravely serious requirements of anonymity. If you must use Tor for such a reason, please look into other ways of deploying web apps onto the dark web.
 
 # Simplest, easiest way to get running
 
