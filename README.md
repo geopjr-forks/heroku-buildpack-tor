@@ -38,7 +38,7 @@ web: ./tor/bin/run_tor & <your usual dyno cmd>
 
 # To use free .herokuapp.com domain
 
-The free .herokuapp.com domain automatically redirects to HTTPS, but you can use a custom port to circumvent this.
+The free .herokuapp.com domain automatically redirects to HTTPS, which will normally break your visit to your onionsite, but you can use a custom port to circumvent this.
 Add the following to your torrc.erb (referred to above):
 ```
 HiddenServicePort <pick-a-port> 127.0.0.1:<your-port>
