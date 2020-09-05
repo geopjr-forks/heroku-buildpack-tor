@@ -3,7 +3,7 @@ set -eo pipefail
 
 # Constants
 RUN_COMMAND=run_tor
-TOR_VER=0.4.3.5
+TOR_VER=0.4.3.6
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://dist.torproject.org/
 
@@ -23,7 +23,7 @@ BUILDPACK_BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && p
 TOR_PUBKEY_ID="7A02B3521DC75C542BA015456AFEE6D49E92B601"
 
 ################################################################################
-# TRY TO USE CACHE, OR CLEAR CACHE IF OUTDATED
+# TRY TO USE CACHE
 ################################################################################
 
 echo "[TOR]  Checking if Tor is in cache"
@@ -32,13 +32,12 @@ if [ ! -f "${CACHE_DIR}/tor_version.txt" ]; then
     echo "[TOR]  First run: Tor is not cached"
     TOR_IS_CACHED=0
 else
-    grep -q "${TOR_VER}" "${CACHE_DIR}/tor_version.txt"
+    grep -wq "${TOR_SRC_NAME}" "${CACHE_DIR}/tor_version.txt"
     if [ $? -eq 0 ] ; then
         echo "[TOR]  Tor is cached"
         TOR_IS_CACHED=1
     else
-        echo "[TOR]  Tor is cached, but outdated. Clearing cache for new version install"
-        rm -r "${CACHE_DIR}"
+        echo "[TOR]  Tor is not cached"
         TOR_IS_CACHED=0
     fi
 fi
