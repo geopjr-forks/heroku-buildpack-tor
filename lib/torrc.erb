@@ -1,11 +1,11 @@
-# HiddenServiceDir: Where Tor looks for "hs_ed25519_secret_key", "hs_ed25519_public_key", and "hostname" files
+# HiddenServiceDir: where Tor looks for "hs_ed25519_secret_key", "hs_ed25519_public_key", and "hostname" files
 HiddenServiceDir <%= ENV['HOME'] || 'app' %>/onion-service/
 
-# HiddenServicePort: A virtual port mapped to the local port for your webserver
+# HiddenServicePort: a virtual port mapped to the local port for your webserver
 HiddenServicePort 80 127.0.0.1:<%= ENV['PORT'] || '8080' %>
 HiddenServicePort 8080 127.0.0.1:<%= ENV['PORT'] || '8080' %>
 
-# HiddenServiceVersion: This buildpack currently only supports V3 hidden services, and V3 is default
+# HiddenServiceVersion: this buildpack currently only supports V3 hidden services, and V3 is default
 
 # Send logs at level "notice" or higher to stdout
 Log notice stdout
