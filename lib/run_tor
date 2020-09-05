@@ -5,6 +5,10 @@ set -eo pipefail
 echo "[TOR] Ensuring onion_service directory exists"
 mkdir -p "${HOME}/onion_service"
 
+################################################################################
+# APPLY PERSISTENT ADDRESS/KEYS/TORRC IF SET
+################################################################################
+
 # Write the hs_ed25519_secret_key file from config folder if set
 if [ -f "${HOME}/config/hs_ed25519_secret_key.erb" ]; then
     echo "[TOR] Compiling user-defined hs_ed25519_secret_key from config/hs_ed25519_secret_key.erb"
@@ -38,6 +42,10 @@ else
     erb "${HOME}/tor/torrc.erb" > "${HOME}/tor/etc/tor/torrc"
 fi
 
+################################################################################
+# GENERATE ADDRESS/KEYS IF NOT SET
+################################################################################
+
 # Generate a new hs_ed25519_secret_key, hs_ed5519_public_key, and hostname if both were not specified
 if [ ! -f "${HOME}/onion_service/hs_ed25519_secret_key" ] || [ ! -f "${HOME}/onion_service/hs_ed25519_public_key" ] || [ ! -f "${HOME}/onion_service/hostname" ]; then
     echo "[TOR] WARNING: hs_ed25519_secret_key, hs_ed25519_public_key, and/or hostname were not specified"
@@ -62,6 +70,10 @@ if [ ! -f "${HOME}/onion_service/hs_ed25519_secret_key" ] || [ ! -f "${HOME}/oni
     kill $TOR_PID
     echo "[TOR] Successfully generated new hs_ed25519_secret_key, hs_ed25519_public_key, and hostname"
 fi
+
+################################################################################
+# VALIDATE, PRINT INFO, START
+################################################################################
 
 # Validate Tor config
 
