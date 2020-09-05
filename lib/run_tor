@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# Create Tor onion_service dir for storing hostname, hs_ed25519_secret_key, and hs_ed25519_public_key files
-echo "[TOR] Ensuring onion_service directory exists"
-mkdir -p "${HOME}/onion_service"
+# Create Tor onion-service dir for storing hostname, hs_ed25519_secret_key, and hs_ed25519_public_key files
+echo "[TOR] Ensuring onion-service directory exists"
+mkdir -p "${HOME}/onion-service"
 
 ################################################################################
 # APPLY PERSISTENT ADDRESS/KEYS/TORRC IF SET
@@ -12,7 +12,7 @@ mkdir -p "${HOME}/onion_service"
 # Write the hs_ed25519_secret_key file from config folder if set
 if [ -f "${HOME}/config/hs_ed25519_secret_key.erb" ]; then
     echo "[TOR] Compiling user-defined hs_ed25519_secret_key from config/hs_ed25519_secret_key.erb"
-    erb "${HOME}/config/hs_ed25519_secret_key.erb" > "${HOME}/onion_service/hs_ed25519_secret_key"
+    erb "${HOME}/config/hs_ed25519_secret_key.erb" > "${HOME}/onion-service/hs_ed25519_secret_key"
 else
     echo "[TOR] WARNING: No hs_ed25519_secret_key found in config folder"
 fi
@@ -20,15 +20,15 @@ fi
 # Write the hs_ed25519_public_key file from config folder if set
 if [ -f "${HOME}/config/hs_ed25519_public_key.erb" ]; then
     echo "[TOR] Compiling user-defined hs_ed25519_public_key from config/hs_ed25519_public_key.erb"
-    erb "${HOME}/config/hs_ed25519_public_key.erb" > "${HOME}/onion_service/hs_ed25519_public_key"
+    erb "${HOME}/config/hs_ed25519_public_key.erb" > "${HOME}/onion-service/hs_ed25519_public_key"
 else
     echo "[TOR] WARNING: No hs_ed25519_public_key found in config folder"
 fi
 
 # Write the hostname file using ONION_LOCATION if set
-echo "[TOR] Writing onion_service/hostname file from ONION_LOCATION env"
+echo "[TOR] Writing onion-service/hostname file from ONION_LOCATION env"
 if [ ! -z "${ONION_LOCATION}" ]; then
-    echo "${ONION_LOCATION}" > "${HOME}/onion_service/hostname"
+    echo "${ONION_LOCATION}" > "${HOME}/onion-service/hostname"
 else
     echo "[TOR] WARNING: env ONION_LOCATION is not set"
 fi
@@ -47,19 +47,19 @@ fi
 ################################################################################
 
 # Generate a new hs_ed25519_secret_key, hs_ed5519_public_key, and hostname if both were not specified
-if [ ! -f "${HOME}/onion_service/hs_ed25519_secret_key" ] || [ ! -f "${HOME}/onion_service/hs_ed25519_public_key" ] || [ ! -f "${HOME}/onion_service/hostname" ]; then
+if [ ! -f "${HOME}/onion-service/hs_ed25519_secret_key" ] || [ ! -f "${HOME}/onion-service/hs_ed25519_public_key" ] || [ ! -f "${HOME}/onion-service/hostname" ]; then
     echo "[TOR] WARNING: hs_ed25519_secret_key, hs_ed25519_public_key, and/or hostname were not specified"
     echo "[TOR] WARNING: Attempting to generate a new hs_ed25519_secret_key, hs_ed25519_public_key, and hostname"
 
     # Ensure that hs_ed25519_secret_key, hs_ed5519_public_key, and hostname files are really gone
-    rm -f "${HOME}/onion_service/hs_ed25519_secret_key" "${HOME}/onion_service/hs_ed5519_public_key" "${HOME}/onion_service/hostname"
+    rm -f "${HOME}/onion-service/hs_ed25519_secret_key" "${HOME}/onion-service/hs_ed5519_public_key" "${HOME}/onion-service/hostname"
 
     # Start Tor in the background and track the PID
     "${HOME}/tor/bin/tor" -f "${HOME}/tor/etc/tor/torrc" & TOR_PID=$!
 
     # Wait until hs_ed25519_secret_key, hs_ed5519_public_key, and hostname are generated then kill Tor (for now)
     TOR_AUTOGEN_TRIES_REMAINING=5
-    while [ ! -f "${HOME}/onion_service/hs_ed25519_secret_key" ] && [ ! -f "${HOME}/onion_service/hs_ed25519_public_key" ] && [ ! -f "${HOME}/onion_service/hostname" ]; do
+    while [ ! -f "${HOME}/onion-service/hs_ed25519_secret_key" ] && [ ! -f "${HOME}/onion-service/hs_ed25519_public_key" ] && [ ! -f "${HOME}/onion-service/hostname" ]; do
         TOR_AUTOGEN_TRIES_REMAINING=$((TOR_AUTOGEN_TRIES_REMAINING-1))
         if [ $TOR_AUTOGEN_TRIES_REMAINING -eq 0 ]; then
             echo "[TOR] FAILURE: Unable to generate a hs_ed25519_secret_key, hs_ed25519_public_key, and hostname"
@@ -77,14 +77,14 @@ fi
 
 # Validate Tor config
 
-TOR_HOSTNAME=$(cat "${HOME}/onion_service/hostname")
+TOR_HOSTNAME=$(cat "${HOME}/onion-service/hostname")
 
 # Print some useful info
 echo ""
 echo "[TOR] ==================================================================="
 echo "[TOR] Starting onion service at ${TOR_HOSTNAME}"
 echo "[TOR] You may dangerously print your hs_ed25519_secret_key by running this command:"
-echo "[TOR] heroku ps:exec --dyno=${DYNO} 'cat \"${HOME}/onion_service/hs_ed25519_secret_key\"'"
+echo "[TOR] heroku ps:exec --dyno=${DYNO} 'cat \"${HOME}/onion-service/hs_ed25519_secret_key\"'"
 echo "[TOR] ==================================================================="
 echo ""
 
