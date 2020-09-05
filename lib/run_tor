@@ -10,17 +10,17 @@ mkdir -p "${HOME}/onion-service"
 ################################################################################
 
 # Write the hs_ed25519_secret_key file from config folder if set
-if [ -f "${HOME}/config/hs_ed25519_secret_key.erb" ]; then
-    echo "[TOR] Compiling user-defined hs_ed25519_secret_key from config/hs_ed25519_secret_key.erb"
-    erb "${HOME}/config/hs_ed25519_secret_key.erb" > "${HOME}/onion-service/hs_ed25519_secret_key"
+if [ -f "${HOME}/config/hs_ed25519_secret_key" ]; then
+    echo "[TOR] Compiling user-defined hs_ed25519_secret_key from config/hs_ed25519_secret_key"
+    cp "${HOME}/config/hs_ed25519_secret_key" "${HOME}/onion-service/hs_ed25519_secret_key"
 else
     echo "[TOR] WARNING: No hs_ed25519_secret_key found in config folder"
 fi
 
 # Write the hs_ed25519_public_key file from config folder if set
-if [ -f "${HOME}/config/hs_ed25519_public_key.erb" ]; then
-    echo "[TOR] Compiling user-defined hs_ed25519_public_key from config/hs_ed25519_public_key.erb"
-    erb "${HOME}/config/hs_ed25519_public_key.erb" > "${HOME}/onion-service/hs_ed25519_public_key"
+if [ -f "${HOME}/config/hs_ed25519_public_key" ]; then
+    echo "[TOR] Compiling user-defined hs_ed25519_public_key from config/hs_ed25519_public_key"
+    cp "${HOME}/config/hs_ed25519_public_key" "${HOME}/onion-service/hs_ed25519_public_key"
 else
     echo "[TOR] WARNING: No hs_ed25519_public_key found in config folder"
 fi
