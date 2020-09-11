@@ -1,6 +1,6 @@
 # heroku-buildpack-tor
 
-This buildpack sets up a Tor V3 onion service for your app on Heroku.
+This buildpack sets up a Tor v3 onion service for your app on Heroku.
 
 I will be regularly and manually updating the Tor version, which may require you to clear your build cache upon your next git push for your app when I do so. Easy instructions are in this link:
 
@@ -26,7 +26,7 @@ web: ./tor/bin/run_tor & <your-usual-dyno-cmd>
 2. Deploy your app
 3. Run "heroku logs --tail" to see the .onion address you generated. With this setup, the address will change with each redeploy. The next section will explain how to set up a persistent address.
 
-# To set your own permanent V3 .onion address
+# To set your own permanent v3 .onion address
 
 1. Generate/find your own hostname/hs_ed25519_public_key/hs_ed25519_secret_key files
 2. Set the .onion address inside the hostname file as an environment variable named "ONION_LOCATION"
@@ -47,4 +47,4 @@ Your onionsite should then be available at yourv3onionaddress.onion:your-port
 
 # Misc
 
-If you get stuck, please feel free to defer to jtschoonhoven's buildpack/fork/Medium story for a much more in-depth tutorial. Most of the instructions apply except for the private_key ones specific to V2 .onion addresses, which I've updated for V3 .onion addresses here.
+If you get stuck, please feel free to defer to jtschoonhoven's buildpack/fork/Medium story for a much more in-depth tutorial. Most of the instructions apply except for the private_key ones specific to v2 .onion addresses, which I've updated for v3 .onion addresses here.
