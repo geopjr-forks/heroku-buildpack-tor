@@ -79,7 +79,7 @@ if [ $TOR_IS_CACHED -eq 0 ]; then
     gpg --keyserver keys.gnupg.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  GNU Keyserver unavailable"
     
     echo "[TOR]  Verifying signature of Tor package"
-    gpgv --keyring ./tor.keyring ${TOR_SIG_NAME} ${TOR_SRC_NAME}
+    gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME}
     if [ ! $? -eq 0 ]; then
         echo "[TOR]  FAILED to verify the signature"
         exit 1
