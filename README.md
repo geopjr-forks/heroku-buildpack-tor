@@ -6,7 +6,7 @@ I will be regularly and manually updating the Tor version, which may require you
 
 https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache
 
-This is so that we get to stay current with Tor's bugfixes and patches. However, if you do not want to have to keep up with this, you can pin a specific past version of this buildpack to use for yourself:
+This is so that we get to stay current with Tor's bugfixes and patches. However, if you do not want to have to keep up with this, you can pin a specific past version of this buildpack to use for yourself (recommended):
 
 ```
 heroku buildpacks:add https://github.com/EJTheSnail/heroku-buildpack-tor.git#v<version-number-here>
