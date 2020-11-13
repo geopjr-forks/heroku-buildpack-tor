@@ -8,10 +8,6 @@ https://help.heroku.com/18PI5RSY/how-do-i-clear-the-build-cache
 
 This is so that we get to stay current with Tor's bugfixes and patches.
 
-```
-heroku buildpacks:add https://github.com/EJTheSnail/heroku-buildpack-tor.git#v<version-number-here>
-```
-
 # Disclaimer
 
 This buildpack has a specific hobbyist use case, and is not intended for any use involving gravely serious requirements of anonymity. If you must use Tor for such a reason, please look into other ways of deploying web apps onto the dark web.
