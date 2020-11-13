@@ -17,11 +17,6 @@ TOR_SRC_SIG_URL=${TOR_DIST_URL}${TOR_SIG_NAME}
 # https://stackoverflow.com/a/246128/3076390
 BUILDPACK_BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-# NOTE: The Tor official docs do not link to the public key for the Tor package.
-# The most reliable source appears to be this:
-# https://trac.torproject.org/projects/tor/ticket/31090
-TOR_PUBKEY_ID="7A02B3521DC75C542BA015456AFEE6D49E92B601"
-
 ################################################################################
 # TRY TO USE CACHE
 ################################################################################
@@ -69,10 +64,8 @@ fi
 ################################################################################
 
 if [ $TOR_IS_CACHED -eq 0 ]; then
-    echo "[TOR]  Importing Tor PGP public key from keyservers"
-    gpg --keyserver pgp.mit.edu --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  MIT Keyserver unavailable"
-    gpg --keyserver pool.sks-keyservers.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  SKS Keyserver unavailable"
-    gpg --keyserver keys.gnupg.net --recv-key ${TOR_PUBKEY_ID} || echo "[TOR]  GNU Keyserver unavailable"
+    echo "[TOR]  Importing Tor PGP public key from openpgpkey.torproject.org"
+    curl -s https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf |gpg --import
 
     echo "[TOR]  Verifying signature of Tor package"
     gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME}
