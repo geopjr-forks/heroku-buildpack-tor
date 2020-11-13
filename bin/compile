@@ -64,11 +64,12 @@ fi
 ################################################################################
 
 if [ $TOR_IS_CACHED -eq 0 ]; then
-    echo "[TOR]  Importing Tor PGP public key from openpgpkey.torproject.org"
-    curl -s https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf |gpg --import
-
+    echo "[TOR]  Importing Tor Developers key"
+    gpg --auto-key-locate nodefault,wkd --locate-keys torbrowser@torproject.org
+    gpg --output ./tor.keyring --export 0xEF6E286DDA85EA2A4BA7DE684E2C6E8793298290
+    
     echo "[TOR]  Verifying signature of Tor package"
-    gpg --verify ${TOR_SIG_NAME} ${TOR_SRC_NAME}
+    gpgv --keyring ./tor.keyring ${TOR_SIG_NAME} ${TOR_SRC_NAME}
     if [ ! $? -eq 0 ]; then
         echo "[TOR]  FAILED to verify the signature"
         exit 1
