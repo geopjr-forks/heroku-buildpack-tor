@@ -3,7 +3,7 @@ set -eo pipefail
 
 # Constants
 RUN_COMMAND=run_tor
-TOR_VER=0.4.4.6
+TOR_VER=0.4.4.7
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://dist.torproject.org/
 
