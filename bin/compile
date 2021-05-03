@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -euxo pipefail
 
 # Constants
 RUN_COMMAND=run_tor
+#TOR_VER="$(wget -q https://gitweb.torproject.org/tor.git/plain/ReleaseNotes -O - | grep -E -m10 '^Changes in version\s[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\s' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/' | sort -r | head -n 1)"
 TOR_VER=0.4.4.7
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://dist.torproject.org/
@@ -108,16 +109,16 @@ fi
 # INSTALL
 ################################################################################
 
+echo 'Writing profile script'
+mkdir -p "${BUILD_DIR}/.profile.d"
+cat <<EOF >"${BUILD_DIR}/.profile.d/000_tor.sh"
+export PATH="\${HOME}/tor/bin:\$PATH"
+EOF
+
 # Cached installation to real build dir
 cp -r "${CACHE_DIR}/tor" "${BUILD_DIR}"
 
 # Saves the version just compiled
 echo "${TOR_SRC_NAME}" > "${CACHE_DIR}/tor_version.txt"
-
-# Copy the default torrc.erb template file to the Tor directory
-cp "${BUILDPACK_BIN_DIR}/../lib/torrc.erb" "${BUILD_DIR}/tor/torrc.erb"
-
-# Copy the run_tor executable to the Tor directory
-cp "${BUILDPACK_BIN_DIR}/../lib/run_tor" "${BUILD_DIR}/tor/bin/${RUN_COMMAND}"
 
 echo "[TOR]  Installed successfully"
