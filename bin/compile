@@ -4,7 +4,7 @@ set -euxo pipefail
 # Constants
 RUN_COMMAND=run_tor
 #TOR_VER="$(wget -q https://gitweb.torproject.org/tor.git/plain/ReleaseNotes -O - | grep -E -m10 '^Changes in version\s[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\s' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/' | sort -r | head -n 1)"
-TOR_VER=0.4.7.8
+TOR_VER=0.4.7.1
 TOR_SRC_NAME=tor-${TOR_VER}.tar.gz
 TOR_DIST_URL=https://dist.torproject.org/
 
